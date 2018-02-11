@@ -4,31 +4,8 @@
             <div class="wwlr auto">
                 <form>
                     <div class="clearfix">
-            <textarea class="textarea" id="content" name="content" placeholder="JS/HTML代码">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;meta charset=&quot;utf-8&quot;/&gt;
-&lt;script src=&quot;http://code.jquery.com/jquery-latest.min.js&quot;&gt;&lt;/script&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;div id=&quot;wrap&quot;&gt;
-	&lt;div id=&quot;header&quot;&gt;
-		&lt;h1&gt;html在线工具&lt;/h1&gt;
-&lt;!--   如果有用，请别忘了推荐给你的朋友：		--&gt;&lt;!--   Html在线美化、格式化：http://html.yunser.com/   --&gt;
-	&lt;/div&gt;
-	&lt;div id=&quot;main&quot;&gt;&lt;p&gt;&lt;!-- [history] --&gt;
-			&lt;dl&gt;&lt;dt&gt;v1.0&lt;/dt&gt;
-				&lt;dd&gt;2011-06-05 Html工具上线&lt;/dd&gt;
-			&lt;/dl&gt;
-        &lt;/p&gt;
-	&lt;/div&gt;
-	&lt;div id=&quot;footer&quot;&gt;
-		This is just an example.
-	&lt;/div&gt;
-&lt;/div&gt;
-&lt;/body&gt;
-&lt;/html&gt;</textarea>
-                        <textarea class="textarea" id="result" placeholder="过滤后的结果"></textarea>
+            <textarea class="textarea"   id="content" name="content" placeholder="JS/HTML代码"></textarea>
+                        <textarea class="textarea" v-model="result"  v-if="result" placeholder="过滤后的结果"></textarea>
                     </div>
                     <!-- <div class="MainCate-choese ToolChoese pr fr zI1 mt3">
                               <div class="MainCateW-cont SearChoese w90">4个空格缩进</div>
@@ -42,23 +19,13 @@
                                   </ul>
                         </div>   -->
                     <div class="buttons">
-                        <ui-raised-button class="btn" id="beautify" label="格式化"/>
-                        <ui-raised-button class="btn" id="pack0" label="普通压缩"/>
-                        <ui-raised-button class="btn" id="pack1" label="加密压缩"/>
-                        <ui-raised-button class="btn btn-copy" label="复制" />
-                        <ui-raised-button class="btn" label="下载" @click="download" />
-                        <ui-raised-button class="btn" id="clear" label="清空" />
+                        <ui-raised-button class="btn" label="格式化" @click="format"/>
+                        <ui-raised-button class="btn" label="普通压缩" @click="compress"/>
+                        <ui-raised-button class="btn" label="加密压缩" @click="compress2"/>
+                        <ui-raised-button class="btn btn-copy" label="复制" v-if="result" />
+                        <ui-raised-button class="btn" label="下载" @click="download" v-if="result" />
+                        <ui-raised-button class="btn" label="清空" @click="clear" />
                     </div>
-                    <!-- <div class="GuoLvWrapCenter pt10 clearfix">
-
-                      <div class="GuoLvCbtn"><input type="button" value="格式化" class="GLOkBtn" id="beautify">
-                      <input type="button" value="普通压缩" class="GLOkBtn" id="pack0">
-                      <input type="button" value="加密压缩" class="GLOkBtn" id="pack1">
-                      <input type="button" value="复制" class="bg-blue02" id="clip" data-clipboard-target="result">
-                      <input type="button" id="clear" value="清空" class="bg-blue02"></div>
-
-
-                    </div>  -->
                 </form>
             </div>
         </div>
@@ -71,11 +38,35 @@
 
     export default {
         data() {
-            return {}
+            return {
+                code: `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+
+</head>
+<body>
+<div id="wrap">
+	<div id="header">
+		<h1>html在线工具</h1>
+<!--   如果有用，请别忘了推荐给你的朋友：		--><!--   Html在线美化、格式化：http://html.yunser.com/   -->
+	</div>
+	<div id="main"><p><!-- [history] -->
+			<dl><dt>v1.0</dt>
+				<dd>2011-06-05 Html工具上线</dd>
+			</dl>
+        </p>
+	</div>
+	<div id="footer">
+		This is just an example.
+	</div>
+</div>
+</body>
+</html>`,
+                result: ''
+            }
         },
         mounted() {
-            window.init()
-
             this.clipboard = new Clipboard('.btn-copy', {
                 text: function(trigger) {
                     return document.getElementById('result').value;
@@ -100,10 +91,45 @@
             this.clipboard.destroy()
         },
         methods: {
+            format() {
+                // document.getElementById('beautify').disabled = true;
+                let js_source = this.code
+                let tabsize = 4;
+                let tabchar = ' ';
+                if (tabsize == 1) {
+                    tabchar = '\t';
+                }
+                var regEmptyTag = /(<([^\/][^>|^\/>].*)>)(\s*)?(<\/([^>]*)>)/g;
+                var c = "";
+                if (js_source && js_source.charAt(0) === '<') {
+                    //document.getElementById('result').value = style_html(js_source, tabsize, tabchar, 80);
+                    c = style_html(js_source, tabsize, tabchar, 80);
+                } else {
+                    //document.getElementById('result').value = js_beautify(js_source, tabsize, tabchar);
+                    c = js_beautify(js_source, tabsize, tabchar);
+                }
+                this.result = c.replace(regEmptyTag, '$1$4');
+            },
+            compress() {
+                this.pack_js(0)
+            },
+            compress2() {
+                this.pack_js(1)
+            },
+            pack_js(base64) {
+                var packer = new Packer()
+                if (base64) {
+                    this.result = packer.pack(this.code, 1, 0);
+                } else {
+                    this.result = packer.pack(this.code, 0, 0);
+                }
+            },
             download() {
-                let html = document.getElementById('result').value
-                var blob = new Blob([html], {type: "text/plain;charset=utf-8"});
+                var blob = new Blob([this.result], {type: "text/plain;charset=utf-8"});
                 saveAs(blob, "yunser.com.html");
+            },
+            clear() {
+                this.code = this.result = null
             }
         }
     }
