@@ -19,7 +19,7 @@
                                   </ul>
                         </div>   -->
                     <div class="buttons">
-                        <ui-raised-button class="btn" label="格式化" @click="format"/>
+                        <ui-raised-button class="btn" label="格式化" primary @click="format"/>
                         <ui-raised-button class="btn" label="普通压缩" @click="compress"/>
                         <ui-raised-button class="btn" label="加密压缩" @click="compress2"/>
                         <ui-raised-button class="btn btn-copy" label="复制" v-if="result" />
