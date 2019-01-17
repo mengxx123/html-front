@@ -1,152 +1,143 @@
 <template>
-    <my-page title="HTML 工具">
-        <div class="wrapper">
-            <div class="wwlr auto">
-                <form>
-                    <div class="clearfix">
-            <textarea class="textarea"   id="content" name="content" placeholder="JS/HTML代码"></textarea>
-                        <textarea class="textarea" v-model="result"  v-if="result" placeholder="过滤后的结果"></textarea>
+    <my-page title="HTML">
+        <div class="tool-list">
+            <div class="mu-paper list-item mu-paper-round mu-paper-1" 
+                v-for="app in apps">
+                <router-link class="link" :to="app.to">
+                    <img :src="app.icon" class="img">
+                    <div class="info">
+                        <h3 class="text">{{ app.name }}</h3>
+                        <div class="desc">{{ app.desc }}</div>
                     </div>
-                    <!-- <div class="MainCate-choese ToolChoese pr fr zI1 mt3">
-                              <div class="MainCateW-cont SearChoese w90">4个空格缩进</div>
-                              <input name="tabsize" id="tabsize" value="4" type="hidden">
-                              <span class="MCicon-drop-down SearChoese">4个空格缩进</span>
-                                  <ul class="MainCateC-down SearChoese-show w100" style="display: none;">
-                                    <li><a href="javascript:" val="1">制表符缩进</a></li>
-                                    <li><a href="javascript:" val="2">2个空格缩进</a></li>
-                                    <li><a href="javascript:" val="4">4个空格缩进</a></li>
-                                    <li><a href="javascript:" val="8">8个空格缩进</a></li>
-                                  </ul>
-                        </div>   -->
-                    <div class="buttons">
-                        <ui-raised-button class="btn" label="格式化" primary @click="format"/>
-                        <ui-raised-button class="btn" label="普通压缩" @click="compress"/>
-                        <ui-raised-button class="btn" label="加密压缩" @click="compress2"/>
-                        <ui-raised-button class="btn btn-copy" label="复制" v-if="result" />
-                        <ui-raised-button class="btn" label="下载" @click="download" v-if="result" />
-                        <ui-raised-button class="btn" label="清空" @click="clear" />
-                    </div>
-                </form>
+                    <i class="icon icon-heart"></i>
+                </router-link>
             </div>
         </div>
     </my-page>
 </template>
 
 <script>
-    /* eslint-disable */
-    const saveAs = window.saveAs
-
     export default {
-        data() {
+        data () {
             return {
-                code: `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8"/>
-
-</head>
-<body>
-<div id="wrap">
-	<div id="header">
-		<h1>html在线工具</h1>
-<!--   如果有用，请别忘了推荐给你的朋友：		--><!--   Html在线美化、格式化：http://html.yunser.com/   -->
-	</div>
-	<div id="main"><p><!-- [history] -->
-			<dl><dt>v1.0</dt>
-				<dd>2011-06-05 Html工具上线</dd>
-			</dl>
-        </p>
-	</div>
-	<div id="footer">
-		This is just an example.
-	</div>
-</div>
-</body>
-</html>`,
-                result: ''
+                apps: [
+                    {
+                        name: 'HTML 工具',
+                        desc: '',
+                        icon: '/static/img/html.svg',
+                        to: '/tool'
+                    },
+                    {
+                        name: 'HTML 编码解码',
+                        desc: '',
+                        icon: '/static/img/html.svg',
+                        to: '/coding'
+                    },
+                    {
+                        name: '图片、链接提取',
+                        desc: '',
+                        icon: '/static/img/html.svg',
+                        to: '/deal'
+                    }
+                ]
             }
         },
-        mounted() {
-            this.clipboard = new Clipboard('.btn-copy', {
-                text: function(trigger) {
-                    return document.getElementById('result').value;
-                }
-            });
-
-            this.clipboard.on('success', function(e) {
-                console.info('Action:', e.action);
-                console.info('Text:', e.text);
-                console.info('Trigger:', e.trigger);
-
-                e.clearSelection();
-            });
-
-            this.clipboard.on('error', function(e) {
-                console.error('Action:', e.action);
-                console.error('Trigger:', e.trigger);
-            })
-
+        computed: {
         },
-        destroyed() {
-            this.clipboard.destroy()
+        mounted() {
         },
         methods: {
-            format() {
-                // document.getElementById('beautify').disabled = true;
-                let js_source = this.code
-                let tabsize = 4;
-                let tabchar = ' ';
-                if (tabsize == 1) {
-                    tabchar = '\t';
-                }
-                var regEmptyTag = /(<([^\/][^>|^\/>].*)>)(\s*)?(<\/([^>]*)>)/g;
-                var c = "";
-                if (js_source && js_source.charAt(0) === '<') {
-                    //document.getElementById('result').value = style_html(js_source, tabsize, tabchar, 80);
-                    c = style_html(js_source, tabsize, tabchar, 80);
-                } else {
-                    //document.getElementById('result').value = js_beautify(js_source, tabsize, tabchar);
-                    c = js_beautify(js_source, tabsize, tabchar);
-                }
-                this.result = c.replace(regEmptyTag, '$1$4');
+            init() {
             },
-            compress() {
-                this.pack_js(0)
+            fileChange(e) {
             },
-            compress2() {
-                this.pack_js(1)
-            },
-            pack_js(base64) {
-                var packer = new Packer()
-                if (base64) {
-                    this.result = packer.pack(this.code, 1, 0);
-                } else {
-                    this.result = packer.pack(this.code, 0, 0);
-                }
-            },
-            download() {
-                var blob = new Blob([this.result], {type: "text/plain;charset=utf-8"});
-                saveAs(blob, "yunser.com.html");
-            },
-            clear() {
-                this.code = this.result = null
+            sizeStr: function (size) {
             }
         }
     }
 </script>
 
 <style lang="scss" scoped>
-    .textarea {
-        width: 300px;
-        height: 300px;
-        margin-right: 16px;
-    }
+@import '../scss/var';
 
-    .buttons {
-        margin-top: 16px;
-        .btn {
-            margin-right: 8px;
-            margin-bottom: 16px;
+.tool-list {
+    max-width: 840px;
+    margin: 0 auto;
+    @include clearfix;
+    .list-item {
+        position: relative;
+        float: left;
+        width: 260px;
+        height: 96px;
+        padding: 8px;
+        margin: 2px 16px 16px 2px;
+        background-color: #fff;
+        //border: 1px solid #ccc;
+        &:hover {
+            background-color: #f9f9f9;
+            // box-shadow: 0 3px 10px rgba(0,0,0,.156863), 0 3px 10px rgba(0,0,0,.227451);
+            //border-color: #09c;
+            .icon {
+                display: block;
+            }
+        }
+        &.active {
+            border: 1px solid #f00;
         }
     }
+    a {
+        display: block;
+        height: 100%;
+        color: #666;
+    }
+    .img {
+        float: left;
+        width: 72px;
+        height: 72px;
+        margin-right: 16px;
+        background-color: #fff;
+        border: 1px solid #e9e9e9;
+        border-radius: 8px;
+    }
+    .info {
+        float: left;
+    }
+    .text {
+        font-size: 18px;
+        color: #000;
+    }
+    .header {
+        overflow: hidden;
+    }
+    .desc {
+        max-width: 150px;
+        margin-top: 8px;
+    }
+    .icon-heart {
+        display: none;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        &:hover {
+            color: #f00;
+        }
+    }
+    .icon-close {
+        display: none;
+        position: absolute;
+        top: 32px;
+        right: 8px;
+        &:hover {
+            color: #f00;
+        }
+    }
+}
+@media all and (max-width: 400px){
+    .tool-list {
+        .list-item {
+            width: 100%;
+            margin-right: 0;
+        }
+    }
+}
 </style>
